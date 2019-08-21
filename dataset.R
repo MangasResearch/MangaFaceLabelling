@@ -18,8 +18,8 @@ init <- function(){
 get_image <- function(){
   if(label == "hap")
   {
-    current_image <- "www/dataset/img1.jpg"
     label <<- "sad"
+    current_image <- "www/dataset/img1.jpg"
   }
   else if(label == "sad")
     current_image <- "www/dataset/img2.jpg"

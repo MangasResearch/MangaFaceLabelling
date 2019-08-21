@@ -41,7 +41,7 @@ shinyServer(function(input, output) {
     # Capturar nome definido pelo usuário no shinyalert.
     observeEvent(input$shinyalert, {
         if(input$shinyalert != '')
-            values$username = input$shinyalert
+            values$username <- input$shinyalert
         print(paste0("Seja bem vindo, ", values$username))
     })
     
@@ -61,8 +61,7 @@ shinyServer(function(input, output) {
     
     # Carregar imagem na GUI.    
     output$showCurrentFace <- renderPlot({
-        print(values$current_image)
-        img<-load.image(values$current_image)
+        img <- load.image(values$current_image)
         #div(img(src = values$current_image, height = 200), style="text-align: center;")
         plot(img, axes=FALSE)
     }, height = 350)
@@ -71,9 +70,8 @@ shinyServer(function(input, output) {
     selected <- eventReactive(input$Submit,{
         expr <- input$expr
         set_label(values$current_image, expr)
-        values$current_image = get_image()
-        values$pre_label = get_prelabel()
-
+        values$current_image <- get_image()
+        values$pre_label <- get_prelabel()
         return(expr)
     })
     
