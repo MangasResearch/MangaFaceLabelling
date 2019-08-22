@@ -1,26 +1,55 @@
-library(data.table)
+library(DBI)
+
 label <- "hap"
 
-data_faces <- data.table(path=character(), label=numeric(), marked=logical(), manga=character())
-manga_state <- data.table(busy=vector(length = 109), complete=vector(length = 109))
-
-init <- function(){
-  for(i in 1:nrow(manga_state)) {
-    row <- manga_state[i,]
-    if(row$complete == FALSE){
-      if(row$busy == FALSE){
-        manga_state[i,"busy"] <<- TRUE
-        saveRDS(manga_state,"manga_state")
-      }
-    }
-  }
+#Conectar BD
+load_bd_connection <- function(){
+  DBI::dbConnect(RPostgres::Postgres(), 
+                 dbname = "",
+                 host = "", 
+                 port = "",
+                 user = "", 
+                 password = "")
 }
+
+init <- function(conn){
+  
+  query <- "
+    WITH subquery AS (
+       SELECT * FROM dataset WHERE MARKED = False LIMIT  2
+    )
+    UPDATE dataset
+    SET busy=TRUE
+    FROM subquery
+    WHERE dataset.id=subquery.id
+    RETURNING dataset.*;
+    "
+    # Começar transação
+    dbBegin(conn)
+    dbExecute(conn, "LOCK TABLE dataset IN ACCESS EXCLUSIVE MODE;")
+    tbl <- dbGetQuery(conn, query)
+    # Dar commit na transação
+    dbCommit(conn)
+    
+    return(tbl)
+}
+
+
+# Atualizar banco de dados com um dataframe
+# https://stackoverflow.com/questions/20546468/how-to-pass-data-frame-for-update-with-r-dbi
+update_changes <- function(conn, df){
+  
+}
+
+## conectar banco de dados
+# conn <- load_bd_connection()
+## carregar tabela com faces não marcadas
+# table_user <- init(conn)
+
+
 get_image <- function(){
   if(label == "hap")
-  {
-    label <<- "sad"
     current_image <- "www/dataset/img1.jpg"
-  }
   else if(label == "sad")
     current_image <- "www/dataset/img2.jpg"
   else
@@ -31,7 +60,7 @@ get_image <- function(){
 
 get_prelabel <- function(){
  
-  return(label) 
+  return("sad") 
 }
 set_label <- function(current_image, my_label){
   label <<- my_label

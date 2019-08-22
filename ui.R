@@ -9,8 +9,11 @@
 
 library(shiny)
 library(shinyalert)
+library(shinythemes)
 
 shinyUI(fluidPage(
+    
+    theme = shinytheme("lumen"),
     
     # Mensagem de boas vindas solicitando nome do usuário
     useShinyalert(),
@@ -39,6 +42,7 @@ shinyUI(fluidPage(
             tabsetPanel(type = "tabs",
                         tabPanel("Faces", 
                                   h2("Face atual"),
+                                 # tableOutput("tbl"),
                                   p("Selecione a expressão abaixo que caracterize melhor a face mostrada:"),
                                   br(),
                                  div(plotOutput("showCurrentFace", height = "300px"), align = "center"), 
@@ -48,7 +52,7 @@ shinyUI(fluidPage(
                                   div(actionButton("Submit", icon("fas fa-robot"), label="Confirmar"),style="text-align: center")
                         ),
                         tabPanel("Exemplos", 
-                                  h2("Exemplos", style = "color:green"),
+                                  h2("Exemplos"),
                                   uiOutput("introExamples"),
                                  fluidRow(
                                      column(12, align="center",

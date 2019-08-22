@@ -12,10 +12,22 @@ library(imager)
 library(glue)
 source("dataset.R")
 
+# A read-only data set that will load once, when Shiny starts, and will be
+# available to each user session
+conn <- load_bd_connection()
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
     # Variáveis usadas pelas operações do shinyserver.
-    values <- reactiveValues(current_image = get_image(), pre_label = get_prelabel(), username = "user-sama")
+    values <- reactiveValues(current_image = get_image(), pre_label = get_prelabel(), 
+                             username = "user-sama")
+    
+    onStop(function() cat("Session stopped\n"))
+    
+    # Desconectar BD no fim da seção
+    cancel.onSessionEnded <- session$onSessionEnded(function() {
+        print("desconectando BD")
+        on.exit(dbDisconnect(conn), add = TRUE)
+    })
     
     # Exibir o pop-up solicitando nome do usuário.
     shinyalert(
@@ -44,6 +56,10 @@ shinyServer(function(input, output) {
             values$username <- input$shinyalert
         print(paste0("Seja bem vindo, ", values$username))
     })
+    
+    # output$tbl <- renderTable({
+    #     dbReadTable(conn, "dataset")
+    # })
     
     # Definir texto de ajuda para o usuário.
     output$helpText <- renderUI({
