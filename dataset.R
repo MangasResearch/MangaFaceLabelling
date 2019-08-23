@@ -5,11 +5,11 @@ label <- "hap"
 #Conectar BD
 load_bd_connection <- function(){
   DBI::dbConnect(RPostgres::Postgres(), 
-                 dbname = "",
-                 host = "", 
-                 port = "",
-                 user = "", 
-                 password = "")
+                 dbname = Sys.getenv("DBNAME"),
+                 host = Sys.getenv("HOST"), 
+                 port = Sys.getenv("PORT"),
+                 user = Sys.getenv("USERNAME"), 
+                 password = Sys.getenv("PASSWORD"))
 }
 
 init <- function(conn){
@@ -41,11 +41,11 @@ update_changes <- function(conn, df){
   
 }
 
+
 ## conectar banco de dados
 # conn <- load_bd_connection()
 ## carregar tabela com faces não marcadas
 # table_user <- init(conn)
-
 
 get_image <- function(){
   if(label == "hap")
