@@ -9,98 +9,65 @@
 
 library(shiny)
 library(imager)
-library(glue)
 source("dataset.R")
 
-# A read-only data set that will load once, when Shiny starts, and will be
-# available to each user session
-conn <- load_bd_connection()
+# Conecta ao banco de dados no início da seção
+#conn <- load_bd_connection()
 
+# Definir tabela inicial
+index <- 1
+tbl <- get_table()
+
+# Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
-    # Variáveis usadas pelas operações do shinyserver.
-    values <- reactiveValues(current_image = get_image(), pre_label = get_prelabel(), 
-                             username = "user-sama", tbl=init(conn), index=1)
+    values <- reactiveValues(index=1, tbl = get_table(),
+                             current_row = get_row(tbl, index))
+    
     
     # Desconectar BD no fim da seção
     cancel.onSessionEnded <- session$onSessionEnded(function() {
         print("desconectando BD")
-        on.exit(dbDisconnect(conn), add = TRUE)
+        #on.exit(dbDisconnect(conn), add = TRUE)
     })
     
-    # Exibir o pop-up solicitando nome do usuário.
-    shinyalert(
-        title = "Como prefere ser chamado?", type = "input"
-    )
-    
-    
-    # Atualizar radioButton a ser mostrado na tela
-    output$radioButton <- renderUI({
-        div(
-            radioButtons("expr", "Expressões:",
-                         c("Felicidade" = 1,
-                           "Raiva" = 2,
-                           "Seriedade" = 3,
-                           "Surpresa" = 4,
-                           "Medo" = 5,
-                           "Nojo" = 6,
-                           "Tristeza" = 7,
-                           "Timidez" = 8), selected = values$pre_label, inline=T),
-            style="text-align: center;")
+    # Atualizar opções mostradas na tela
+    output$options <- renderUI({
+        radioButtons("expr", "Selecione a opção que define melhor a face mostrada ao lado:",
+                     c("Não é face" = 0,
+                       "Felicidade" = 1,
+                       "Raiva" = 2,
+                       "Seriedade" = 3,
+                       "Surpresa" = 4,
+                       "Medo" = 5,
+                       "Nojo" = 6,
+                       "Tristeza" = 7,
+                       "Timidez" = 8), selected = values$current_row$label)
     })
-    
-    # Capturar nome definido pelo usuário no shinyalert.
-    observeEvent(input$shinyalert, {
-        if(input$shinyalert != '')
-            values$username <- input$shinyalert
-        print(paste0("Seja bem vindo, ", values$username))
-    })
-    
-    # Definir texto de ajuda para o usuário.
-    output$helpText <- renderUI({
-                helpText(glue("Olá, {values$username}, desejo boas vindas a ferramenta de ",
-                              "marcação de faces de mangás. Como você já pode ter notado, ao lado ",
-                              "há uma imagem e 7 opções. A tarefa pedida, é que você marque ",
-                              "a emoção que mais se assemelhe a face mostrada. Quando você tiver ",
-                              "certeza sobre a opção, você pode clicar no botão 'confirmar' que ",
-                              "irá salvar sua escolha e te mostrará a próxima imagem. Se a tarefa ",
-                              "estiver muito cansativa/chata, você pode deixar de marcar a qualquer ",
-                              "momento. Então, {values$username}, simples, não?\n",
-                              "Agradeço desde já por sua ajuda.")
-                         )
-            })
     
     # Carregar imagem na GUI.    
     output$showCurrentFace <- renderPlot({
-        img <- load.image(values$current_image)
-        #div(img(src = values$current_image, height = 200), style="text-align: center;")
+        print(values$current_row$ref)
+        img <- load.image(values$current_row$ref)
         plot(img, axes=FALSE)
-    }, height = 350)
+    }, height = 400)
     
-    
+    # Receber opção selecionada pelo usuário
     observeEvent(input$Submit, {
-        if(values$index == 5)
-        {
-            removeTab(inputId = "tabs", target = "Faces")
-            prependTab(inputId = "tabs", tabPanel("Faces"))
-        }
-            
-    })
-    
-    # Obter a imagem atual a ser exibida na GUI.
-    observeEvent(input$Submit, {
-        expr <- input$expr
-        set_label(values$current_image, expr)
-        my_row <- get_row(values$tbl, values$index)
+        # Atualizar dataframe
+        print(paste("Opção selecionada:",input$expr))
+        values$tbl$label[values$index] <- input$expr
+        # Obter próxima linha da tabela
         values$index <- values$index + 1
-        values$current_image <- my_row$ref
-        values$pre_label <- my_row$label
-        return(expr)
+        if (values$index < 5)
+            values$current_row <- get_row(values$tbl, values$index)
     })
     
-    # Atualizar texto dos exemplos com o nome do usuário
-    output$introExamples <- renderUI({
-        p(glue("Olá, {values$username}, nesta seção, você pode encontrar alguns exemplos ",
-        "de faces e suas expressões correspondentes."))
-    })
+    # Destruir botão de confirmar se condição é verdadeira
+    observeEvent(input$Submit, {
+        if (values$index == 5){
+            print("Destruindo botão")
+            removeUI(selector='#Submit', immediate=TRUE)
+        }
+    }, autoDestroy=TRUE)
     
 })

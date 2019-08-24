@@ -1,6 +1,5 @@
 library(DBI)
-
-label <- "hap"
+library(tibble)
 
 #Conectar BD
 load_bd_connection <- function(){
@@ -25,11 +24,11 @@ init <- function(conn){
     RETURNING dataset.*;
     "
     # Começar transação
-    #dbBegin(conn)
-    #dbExecute(conn, "LOCK TABLE dataset IN ACCESS EXCLUSIVE MODE;")
+    dbBegin(conn)
+    dbExecute(conn, "LOCK TABLE dataset IN ACCESS EXCLUSIVE MODE;")
     tbl <- dbGetQuery(conn, query)
     # Dar commit na transação
-    #dbCommit(conn)
+    dbCommit(conn)
     
     return(tbl)
 }
@@ -41,33 +40,15 @@ update_changes <- function(conn, df){
   
 }
 
-get_row <- function(tbl, ind=1){
-  return(tbl[ind, ])
+get_table <- function(){
+  df <- tibble(ref=c("www/dataset/img1.jpg", "www/dataset/img2.jpg", 
+                     "www/dataset/img3.jpg", "www/dataset/rikka.png"), 
+               label=sample(1:8, 4))
+  return(df)
+}
+
+get_row <- function(df, ind){
+  return(df[ind, ])
 }
 
 
-## conectar banco de dados
-# conn <- load_bd_connection()
-## carregar tabela com faces não marcadas
-# table_user <- init(conn)
-
-get_image <- function(){
-  if(label == "hap")
-    current_image <- "www/dataset/img1.jpg"
-  else if(label == "sad")
-    current_image <- "www/dataset/img2.jpg"
-  else
-    current_image <- "www/dataset/img3.jpg"
-  
-  return(current_image)
-}
-
-get_prelabel <- function(){
- 
-  return(2) 
-}
-set_label <- function(current_image, my_label){
-  label <<- my_label
-  print(paste("Imagem atual dentro do set_label:",current_image))
-  print(paste("label atual dentro do set_label:",my_label))
-}
