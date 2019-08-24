@@ -16,7 +16,7 @@ init <- function(conn){
   
   query <- "
     WITH subquery AS (
-       SELECT * FROM dataset WHERE MARKED = False LIMIT  2
+       SELECT * FROM dataset WHERE MARKED = False LIMIT  10
     )
     UPDATE dataset
     SET busy=TRUE
@@ -25,11 +25,11 @@ init <- function(conn){
     RETURNING dataset.*;
     "
     # Começar transação
-    dbBegin(conn)
-    dbExecute(conn, "LOCK TABLE dataset IN ACCESS EXCLUSIVE MODE;")
+    #dbBegin(conn)
+    #dbExecute(conn, "LOCK TABLE dataset IN ACCESS EXCLUSIVE MODE;")
     tbl <- dbGetQuery(conn, query)
     # Dar commit na transação
-    dbCommit(conn)
+    #dbCommit(conn)
     
     return(tbl)
 }
@@ -39,6 +39,10 @@ init <- function(conn){
 # https://stackoverflow.com/questions/20546468/how-to-pass-data-frame-for-update-with-r-dbi
 update_changes <- function(conn, df){
   
+}
+
+get_row <- function(tbl, ind=1){
+  return(tbl[ind, ])
 }
 
 
@@ -60,7 +64,7 @@ get_image <- function(){
 
 get_prelabel <- function(){
  
-  return("sad") 
+  return(2) 
 }
 set_label <- function(current_image, my_label){
   label <<- my_label

@@ -39,14 +39,13 @@ shinyUI(fluidPage(
         # Main panel for displaying outputs ----
         mainPanel(
             # Output: Tabset w/ plot, summary, and table ----
-            tabsetPanel(type = "tabs",
+            tabsetPanel(id = "tabs",
                         tabPanel("Faces", 
                                   h2("Face atual"),
                                  # tableOutput("tbl"),
                                   p("Selecione a expressão abaixo que caracterize melhor a face mostrada:"),
                                   br(),
                                  div(plotOutput("showCurrentFace", height = "300px"), align = "center"), 
-                                 #uiOutput(outputId = "showCurrentFace"),
                                   br(),
                                   uiOutput("radioButton"),
                                   div(actionButton("Submit", icon("fas fa-robot"), label="Confirmar"),style="text-align: center")

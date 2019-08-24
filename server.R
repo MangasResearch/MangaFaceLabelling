@@ -19,9 +19,7 @@ conn <- load_bd_connection()
 shinyServer(function(input, output, session) {
     # Variáveis usadas pelas operações do shinyserver.
     values <- reactiveValues(current_image = get_image(), pre_label = get_prelabel(), 
-                             username = "user-sama")
-    
-    onStop(function() cat("Session stopped\n"))
+                             username = "user-sama", tbl=init(conn), index=1)
     
     # Desconectar BD no fim da seção
     cancel.onSessionEnded <- session$onSessionEnded(function() {
@@ -39,14 +37,14 @@ shinyServer(function(input, output, session) {
     output$radioButton <- renderUI({
         div(
             radioButtons("expr", "Expressões:",
-                         c("Felicidade" = "hap",
-                           "Raiva" = "ang",
-                           "Seriedade" = "ser",
-                           "Surpresa" = "sur",
-                           "Medo" = "fea",
-                           "Nojo" = "dis",
-                           "Tristeza" = "sad",
-                           "Timidez" = "shy"), selected = values$pre_label, inline=T),
+                         c("Felicidade" = 1,
+                           "Raiva" = 2,
+                           "Seriedade" = 3,
+                           "Surpresa" = 4,
+                           "Medo" = 5,
+                           "Nojo" = 6,
+                           "Tristeza" = 7,
+                           "Timidez" = 8), selected = values$pre_label, inline=T),
             style="text-align: center;")
     })
     
@@ -56,10 +54,6 @@ shinyServer(function(input, output, session) {
             values$username <- input$shinyalert
         print(paste0("Seja bem vindo, ", values$username))
     })
-    
-    # output$tbl <- renderTable({
-    #     dbReadTable(conn, "dataset")
-    # })
     
     # Definir texto de ajuda para o usuário.
     output$helpText <- renderUI({
@@ -82,17 +76,25 @@ shinyServer(function(input, output, session) {
         plot(img, axes=FALSE)
     }, height = 350)
     
-    # Obter a imagem atual a ser exibida na GUI.
-    selected <- eventReactive(input$Submit,{
-        expr <- input$expr
-        set_label(values$current_image, expr)
-        values$current_image <- get_image()
-        values$pre_label <- get_prelabel()
-        return(expr)
-    })
     
     observeEvent(input$Submit, {
-        selected()
+        if(values$index == 5)
+        {
+            removeTab(inputId = "tabs", target = "Faces")
+            prependTab(inputId = "tabs", tabPanel("Faces"))
+        }
+            
+    })
+    
+    # Obter a imagem atual a ser exibida na GUI.
+    observeEvent(input$Submit, {
+        expr <- input$expr
+        set_label(values$current_image, expr)
+        my_row <- get_row(values$tbl, values$index)
+        values$index <- values$index + 1
+        values$current_image <- my_row$ref
+        values$pre_label <- my_row$label
+        return(expr)
     })
     
     # Atualizar texto dos exemplos com o nome do usuário
