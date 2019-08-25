@@ -8,7 +8,7 @@
 #
 
 library(shiny)
-library(imager)
+library(magick)
 source("dataset.R")
 
 # Conecta ao banco de dados no início da seção
@@ -81,22 +81,31 @@ shinyServer(function(input, output, session) {
     
     # Atualizar opções mostradas na tela
     output$options <- renderUI({
-        radioButtons("expr", "Selecione a opção que define melhor a face mostrada ao lado:",
-                     c("Não é face" = 0,
-                       "Felicidade" = 1,
-                       "Raiva" = 2,
-                       "Seriedade" = 3,
-                       "Surpresa" = 4,
-                       "Medo" = 5,
-                       "Nojo" = 6,
-                       "Tristeza" = 7,
-                       "Timidez" = 8), selected = values$current_row$label)
+        div(
+            HTML("<b>Selecione a opção que define melhor a face mostrada abaixo:</b>"),
+            div(plotOutput("showCurrentFace", height = "100%"), align = "center"),
+            radioButtons("expr", "Opções:",
+                         c("Não é face" = 0,
+                           "Não se sabe" = 1,
+                           "Felicidade" = 2,
+                           "Raiva" = 3,
+                           "Seriedade" = 4,
+                           "Surpresa" = 5,
+                           "Medo" = 6,
+                           "Nojo" = 7,
+                           "Tristeza" = 8,
+                           "Timidez" = 9), selected = values$current_row$label)
+            
+        )
     })
-    
-    # Carregar imagem na GUI.    
-    output$showCurrentFace <- renderPlot({
-        print(values$current_row$ref)
-        img <- load.image(values$current_row$ref)
-        plot(img, axes=FALSE)
-    }, height = 400)
-  
+
+
+output$showCurrentFace <-  renderImage({
+       outfile <- tempfile(fileext=".bmp")
+       print(values$current_row$ref)
+       im <- image_read(values$current_row$ref)
+       im <- image_scale(im, "x150")
+       image_write(im, path = outfile, format = "bmp")
+       list(src = outfile)
+    }, deleteFile = TRUE)
+})

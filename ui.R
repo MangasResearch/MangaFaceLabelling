@@ -13,8 +13,11 @@ library(markdown)
 # Define UI for application that draws a histogram
 shinyUI(tagList(
     #shinythemes::themeSelector(),
+    tags$head(
+        tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
+    ),
     navbarPage(
-        theme = shinythemes::shinytheme("journal"),  
+        theme = shinythemes::shinytheme("united"),  
         "MangasR",
         tabPanel("Ferramenta",
                  tags$head(tags$style(type="text/css", ".container-fluid {max-width: 90%;}")),
@@ -24,7 +27,7 @@ shinyUI(tagList(
                                       class = "btn-primary"), style="text-align:right;")
                  ),
                  mainPanel(
-                     div(plotOutput("showCurrentFace", height = "300px"), align = "center")
+                     includeMarkdown("www/help.md")
                  )
         ),
         tabPanel("Sobre", 
@@ -46,6 +49,5 @@ shinyUI(tagList(
                  mainPanel(
                  includeMarkdown("www/about.md")
                  )
-        ),
-        tabPanel("Ajuda", includeMarkdown("www/help.md")))
+        ))
 ))
