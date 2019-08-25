@@ -67,6 +67,7 @@ shinyServer(function(input, output, session) {
         if (values$index == 5){
             print("Destruindo botão")
             removeUI(selector='#Submit', immediate=TRUE)
+            values$index <- 4
         }
     }, autoDestroy=TRUE)
     
