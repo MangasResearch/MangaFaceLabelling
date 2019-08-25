@@ -84,17 +84,22 @@ shinyServer(function(input, output, session) {
         div(
             HTML("<b>Selecione a opção que define melhor a face mostrada abaixo:</b>"),
             div(plotOutput("showCurrentFace", height = "100%"), align = "center"),
-            radioButtons("expr", "Opções:",
-                         c("Não é face" = 0,
-                           "Não se sabe" = 1,
-                           "Felicidade" = 2,
-                           "Raiva" = 3,
-                           "Seriedade" = 4,
-                           "Surpresa" = 5,
-                           "Medo" = 6,
-                           "Nojo" = 7,
-                           "Tristeza" = 8,
-                           "Timidez" = 9), selected = values$current_row$label)
+            fluidRow(
+                   radioButtons("expr", "Opções:",
+                                c("Não é face" = 0,
+                                  "Não se sabe" = 1,
+                                  "Felicidade/ Confiança" = 2,
+                                  "Raiva/ Intimidação" = 3,
+                                  "Seriedade/ Crítico" = 4,
+                                  "Apreensão/ Nervosismo"= 5,
+                                  "Sofrimento/ Depressão" = 6,
+                                  "Nojo ou Desprezo" = 7,
+                                  "Tristeza" = 8,
+                                  "Timidez ou Vergonha" = 9,
+                                  "Medo" = 10,
+                                  "Surpresa" = 11,
+                                  "Inconsciente/ Sono" = 12), selected = values$current_row$label)
+            )
             
         )
     })
