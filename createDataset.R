@@ -1,7 +1,12 @@
-library(readr)
+library(tibble)
 
 # connect to the database
-conn <- load_bd_connection()
+conn <- DBI::dbConnect(RPostgres::Postgres(), 
+                 dbname = Sys.getenv("DBNAME"),
+                 host = Sys.getenv("HOST"), 
+                 port = Sys.getenv("PORT"),
+                 user = Sys.getenv("USERNAME"), 
+                 password = Sys.getenv("PASSWORD"))
 
 # create our dataset table with an appropriate 
 # SERIAL data type for the primary key.
@@ -14,14 +19,15 @@ CREATE TABLE dataset(
   marked boolean NOT NULL
 );"
 
-dbExecute(conn, create_table)
+DBI::dbExecute(conn, create_table)
            
 # made up data
-df <- read_csv("ex.csv")
+df <- tibble(ref=f)
+df$label <- rep(0, nrow(df))
 df[, c("busy", "marked")] <- rep(FALSE, nrow(df))
 
 # write data frame to database
-dbWriteTable(conn, "dataset", df, append=TRUE, row.names=FALSE)
+DBI::dbWriteTable(conn, "dataset", df, append=TRUE, row.names=FALSE)
 
 
 
