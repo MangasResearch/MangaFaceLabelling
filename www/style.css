@@ -1,1 +1,24 @@
 #showCurrentFace img {max-width: 100%;  height: auto}
+
+.shiny-options-group { 
+  height: auto;
+  width: "100%";
+  -webkit-column-count: 2; /* Chrome, Safari, Opera */ 
+  -moz-column-count: 2;    /* Firefox */ 
+  column-count: 2; 
+  -webkit-column-fill: balance;
+  -moz-column-fill: auto;
+  -column-fill: auto;
+  column-fill: balance;
+  margin-top: 0px;
+} 
+
+.control-label {
+  padding-bottom: 10px;
+}
+
+div.radio {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-bottom: 5px;
+}
