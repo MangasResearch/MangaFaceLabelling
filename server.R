@@ -99,6 +99,4 @@ shinyServer(function(input, output, session) {
         img <- load.image(values$current_row$ref)
         plot(img, axes=FALSE)
     }, height = 400)
-    
-
-})
+  
