@@ -22,6 +22,8 @@ CREATE TABLE dataset(
 DBI::dbExecute(conn, create_table)
            
 # made up data
+f <- list.files(path = Sys.getenv("PATH"), pattern = "jpg$",
+                full.names = TRUE, recursive = TRUE)
 df <- tibble(ref=f)
 df$label <- rep(0, nrow(df))
 df[, c("busy", "marked")] <- rep(FALSE, nrow(df))
