@@ -12,23 +12,72 @@ library(imager)
 source("dataset.R")
 
 # Conecta ao banco de dados no início da seção
-#conn <- load_bd_connection()
+conn <- init_bd_connection()
 
 # Definir tabela inicial
 index <- 1
-tbl <- get_table()
+data_faces <- request_bd(conn)
+max_index <- nrow(data_faces)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
-    values <- reactiveValues(index=1, tbl = get_table(),
-                             current_row = get_row(tbl, index))
+    values <- reactiveValues(index=1, data = data_faces,
+                             current_row = get_row(data_faces, index))
     
+    #############################################################################
+   
+    # Receber opção selecionada pelo usuário
+    observeEvent(input$Submit, {
+        # Atualizar dataframe
+        print(paste("Opção selecionada:",input$expr))
+        values$data$label[values$index] <- input$expr
+        values$data$marked[values$index] <- TRUE
+        # Obter próxima linha da tabela
+        values$index <- values$index + 1
+        if (values$index <= max_index)
+            values$current_row <- get_row(values$data, values$index)
+        else{
+
+            #atualizar Banco de dados
+            print('update')
+            print(values$data)
+            update_db(conn, values$data)
+
+
+            #requisitar novos dados
+            print('new request!')
+            values$data <- request_bd(conn)
+            max_index <<- nrow(values$data)
+            if(max_index != 0){
+                values$index <- 1
+                values$current_row <- get_row(values$data, values$index)
+            }
+
+
+        }
+    })
     
+    # Destruir botão de confirmar se condição é verdadeira
+    observeEvent(input$Submit, {
+        if (values$index > max_index | max_index == 0){
+            print("Destruindo botão")
+            removeUI(selector='#Submit', immediate=TRUE)
+        }
+    }, autoDestroy=TRUE)
+        
+
+
     # Desconectar BD no fim da seção
     cancel.onSessionEnded <- session$onSessionEnded(function() {
         print("desconectando BD")
-        #on.exit(dbDisconnect(conn), add = TRUE)
+        update_db(conn, values$data)
+        
+        on.exit(dbDisconnect(conn), add = TRUE)
     })
+
+   #############################################################################
+    
+
     
     # Atualizar opções mostradas na tela
     output$options <- renderUI({
@@ -51,23 +100,5 @@ shinyServer(function(input, output, session) {
         plot(img, axes=FALSE)
     }, height = 400)
     
-    # Receber opção selecionada pelo usuário
-    observeEvent(input$Submit, {
-        # Atualizar dataframe
-        print(paste("Opção selecionada:",input$expr))
-        values$tbl$label[values$index] <- input$expr
-        # Obter próxima linha da tabela
-        values$index <- values$index + 1
-        if (values$index < 5)
-            values$current_row <- get_row(values$tbl, values$index)
-    })
-    
-    # Destruir botão de confirmar se condição é verdadeira
-    observeEvent(input$Submit, {
-        if (values$index == 5){
-            print("Destruindo botão")
-            removeUI(selector='#Submit', immediate=TRUE)
-        }
-    }, autoDestroy=TRUE)
-    
+
 })
