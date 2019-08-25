@@ -3,6 +3,8 @@
 install.packages(c("shiny", "shinyalert", "shinythemes", "markdown"))
 
 # bibliotecas para carregar imagem e ajustar o texto dinamicamente
+sudo yum install libcurl-devel 
+sudo yum install ImageMagick-c++-devel
 
 install.packages(c("magick", "tibble", "glue"))
 
