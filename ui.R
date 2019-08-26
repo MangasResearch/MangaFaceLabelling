@@ -17,7 +17,7 @@ shinyUI(tagList(
         tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
     ),
     navbarPage(
-        theme = shinythemes::shinytheme("united"),  
+        theme = shinythemes::shinytheme("cosmo"),  
         "MangasR",
         tabPanel("Ferramenta",
                  tags$head(tags$style(type="text/css", ".container-fluid {max-width: 90%;}")),
@@ -25,7 +25,7 @@ shinyUI(tagList(
                      uiOutput("options"),
                      div(actionButton("Back", label = "Voltar", icon("fas fa-robot"), 
                                       class = "btn-secondary"),
-                         actionButton("Submit", label = "Confirmar", icon("fas fa-robot"), 
+                         actionButton("Submit", label = "Confirmar", icon("far fa-thumbs-up"), 
                                       class = "btn-success"), style="text-align:right;")
                  ),
                  mainPanel(
