@@ -19,10 +19,9 @@ index <- 1
 data_faces <- request_bd(conn)
 max_index <- nrow(data_faces)
 
-# Define server logic required to draw a histogram
+# Define server logic required
 shinyServer(function(input, output, session) {
-    values <- reactiveValues(index=1, data = data_faces,
-                             current_row = get_row(data_faces, index))
+    values <- reactiveValues(index=1, current_row = get_row(data_faces, index))
     
     #############################################################################
     # Botão de voltar
@@ -30,7 +29,7 @@ shinyServer(function(input, output, session) {
         if(values$index >= 2){
             values$index <- values$index - 1
             print(paste("Back-ID:", values$index))
-            values$current_row <- get_row(values$data, values$index)
+            values$current_row <- get_row(data_faces, values$index)
         }
     })
     
@@ -38,24 +37,24 @@ shinyServer(function(input, output, session) {
     observeEvent(input$Submit, {
         # Atualizar dataframe
         print(paste("Opção selecionada:",input$expr))
-        values$data$label[values$index] <- input$expr
-        values$data$marked[values$index] <- TRUE
+        data_faces$label[values$index] <<- input$expr
+        data_faces$marked[values$index] <<- TRUE
         # Obter próxima linha da tabela
         values$index <- values$index + 1
         if (values$index <= max_index)
-            values$current_row <- get_row(values$data, values$index)
+            values$current_row <- get_row(data_faces, values$index)
         else{
             #atualizar Banco de dados
             print('update')
-            update_db(conn, values$data)
+            update_db(conn, data_faces)
 
             #requisitar novos dados
             print('new request!')
-            values$data <- request_bd(conn)
-            max_index <<- nrow(values$data)
+            data_faces <<- request_bd(conn)
+            max_index <<- nrow(data_faces)
             if(max_index != 0){
                 values$index <- 1
-                values$current_row <- get_row(values$data, values$index)
+                values$current_row <- get_row(data_faces, values$index)
             }
         }
     })
@@ -72,9 +71,11 @@ shinyServer(function(input, output, session) {
 
     # Desconectar BD no fim da seção
     cancel.onSessionEnded <- session$onSessionEnded(function() {
-        update_db(conn, values$data)        
+        print("Fim da seção")
+        update_db(conn, data_faces)        
         on.exit(dbDisconnect(conn), add = TRUE)
     })
+
 
    #############################################################################
     # Atualizar opções mostradas na tela
@@ -103,11 +104,12 @@ shinyServer(function(input, output, session) {
     })
 
 
-output$showCurrentFace <-  renderImage({
-       outfile <- tempfile(fileext=".bmp")
-       im <- image_read(values$current_row$ref)
-       im <- image_scale(im, "x150")
-       image_write(im, path = outfile, format = "bmp")
-       list(src = outfile)
-    }, deleteFile = TRUE)
+    output$showCurrentFace <-  renderImage({
+           outfile <- tempfile(fileext=".bmp")
+           im <- image_read(values$current_row$ref)
+           im <- image_scale(im, "x150")
+           image_write(im, path = outfile, format = "bmp")
+           list(src = outfile)
+        }, deleteFile = TRUE)
 })
+
