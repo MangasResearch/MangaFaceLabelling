@@ -25,7 +25,15 @@ shinyServer(function(input, output, session) {
                              current_row = get_row(data_faces, index))
     
     #############################################################################
-   
+    # Botão de voltar
+    observeEvent(input$Back, {
+        if(values$index >= 2){
+            values$index <- values$index - 1
+            print(paste("Back-ID:", values$index))
+            values$current_row <- get_row(values$data, values$index)
+        }
+    })
+    
     # Receber opção selecionada pelo usuário
     observeEvent(input$Submit, {
         # Atualizar dataframe

@@ -3,15 +3,6 @@
 
 ## Hey Otaku!
 
-Olá Otaku, essa ferramenta de marcação de faces de mangás foi desenvolvida para que você possa nos ajudar com seu conhecimento 'Otaku' e nos guiar qual expressão melhor representa cada face mostrada. Algumas vezes você irá se deparar com situações em que não há uma face, então nesse caso você deverá marcação a opção que corresponde a essa situação específica. Em nossa ferramenta você irá se deparar com 8 tipos de expressões básicas, sendo elas:
+Olá Otaku, essa ferramenta de marcação de faces de mangás foi desenvolvida para que você possa nos ajudar com seu conhecimento e nos guiar qual expressão melhor representa cada face mostrada. Adiantando que esta tarefa se trata de você dar sua opnião sobre qual expressão melhor descreve a face, sem muito rigor técnico definido. Algumas vezes você irá se deparar com situações em que não há uma face, ou na qual você não consegue identificar uma expressão. Nesse caso você deverá marcar a opção não-face ou não sei. Algumas faces podem conter múltiplas expressões mescladas, nesse caso pedimos para que selecione somente a expressão que achar que domina as demais. Pretendemos no futuro abordar melhor esse problema de múltiplos rótulos.
 
-* **Felicidade**
-* **Tristeza** 
-* **Raiva** 
-* **Timidez** 
-* **Seriedade**  
-* **Surpresa** 
-* **Nojo** 
-
-
-Por exemplo, para a imagem animada mostrada nesta página devemos consider a expressão felicidade dentre as opções listadas. Na aba ajuda você pode encontrar alguns exemplos de faces e suas respectivas expressões. 😉
+Nosso objetivo com essa ferramenta é fornecer um dataset para ajudar no desenvolvimento de técnicas de IA no problema de reconhecimento de expressões, impulsionando o desenvolvimento de técnicas estado da arte. Esperamos futuramente abordas diversos outros problemas relacionados nessa área artística!  
