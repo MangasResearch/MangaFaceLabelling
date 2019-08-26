@@ -37,12 +37,9 @@ shinyServer(function(input, output, session) {
         if (values$index <= max_index)
             values$current_row <- get_row(values$data, values$index)
         else{
-
             #atualizar Banco de dados
             print('update')
-            print(values$data)
             update_db(conn, values$data)
-
 
             #requisitar novos dados
             print('new request!')
@@ -52,8 +49,6 @@ shinyServer(function(input, output, session) {
                 values$index <- 1
                 values$current_row <- get_row(values$data, values$index)
             }
-
-
         }
     })
     
@@ -69,16 +64,11 @@ shinyServer(function(input, output, session) {
 
     # Desconectar BD no fim da seção
     cancel.onSessionEnded <- session$onSessionEnded(function() {
-        print("desconectando BD")
-        update_db(conn, values$data)
-        
+        update_db(conn, values$data)        
         on.exit(dbDisconnect(conn), add = TRUE)
     })
 
    #############################################################################
-    
-
-    
     # Atualizar opções mostradas na tela
     output$options <- renderUI({
         div(
@@ -107,7 +97,6 @@ shinyServer(function(input, output, session) {
 
 output$showCurrentFace <-  renderImage({
        outfile <- tempfile(fileext=".bmp")
-       print(values$current_row$ref)
        im <- image_read(values$current_row$ref)
        im <- image_scale(im, "x150")
        image_write(im, path = outfile, format = "bmp")
