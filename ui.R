@@ -22,6 +22,7 @@ shinyUI(tagList(
         tabPanel("Ferramenta",
                  tags$head(tags$style(type="text/css", ".container-fluid {max-width: 90%;}")),
                  sidebarPanel(
+                     uiOutput("text_option"),
                      uiOutput("options"),
                      div(actionButton("Back", label = "Voltar", icon("fas fa-robot"), 
                                       class = "btn-secondary"),

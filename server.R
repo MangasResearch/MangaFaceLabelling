@@ -47,7 +47,7 @@ shinyServer(function(input, output, session) {
             #atualizar Banco de dados
             print('update')
             update_db(conn, data_faces)
-
+            
             #requisitar novos dados
             print('new request!')
             data_faces <<- request_bd(conn)
@@ -56,13 +56,15 @@ shinyServer(function(input, output, session) {
                 values$index <- 1
                 values$current_row <- get_row(data_faces, values$index)
             }
-        }
+        }   
     })
     
     # Destruir botão de confirmar se condição é verdadeira
-    observeEvent(input$Submit, {
+    observe({
         if (values$index > max_index | max_index == 0){
             print("Destruindo botão")
+            removeUI(selector = '#options', immediate = TRUE)
+            removeUI(selector='#Back', immediate=TRUE)
             removeUI(selector='#Submit', immediate=TRUE)
         }
     }, autoDestroy=TRUE)
@@ -72,36 +74,49 @@ shinyServer(function(input, output, session) {
     # Desconectar BD no fim da seção
     cancel.onSessionEnded <- session$onSessionEnded(function() {
         print("Fim da seção")
-        update_db(conn, data_faces)        
+        if(max_index > 0)
+            update_db(conn, data_faces)        
         on.exit(dbDisconnect(conn), add = TRUE)
     })
 
 
    #############################################################################
-    # Atualizar opções mostradas na tela
-    output$options <- renderUI({
+    output$text_option <- renderUI({
+        my_text <- ifelse(values$index <= max_index, 
+                          "<b>Selecione a opção que define melhor a face mostrada abaixo:</b>",
+                          "<b>Não há mais faces para serem marcadas, somos gratos pela sua ajuda.</b>")
+        
+        my_img <- div(img(src = "thanks.gif", width="100%"), align="center")
+        if(values$index <= max_index) 
+            my_img <- div(plotOutput("showCurrentFace", height = "100%"), align = "center")
+
         div(
-            HTML("<b>Selecione a opção que define melhor a face mostrada abaixo:</b>"),
-            div(plotOutput("showCurrentFace", height = "100%"), align = "center"),
-            fluidRow(
-                   radioButtons("expr", "Opções:",
-                                c("Não é face" = 0,
-                                  "Não se sabe" = 1,
-                                  "Felicidade/ Confiança" = 2,
-                                  "Raiva/ Intimidação" = 3,
-                                  "Seriedade/ Crítico" = 4,
-                                  "Apreensão/ Nervosismo"= 5,
-                                  "Sofrimento/ Depressão" = 6,
-                                  "Nojo ou Desprezo" = 7,
-                                  "Tristeza" = 8,
-                                  "Timidez ou Vergonha" = 9,
-                                  "Medo" = 10,
-                                  "Surpresa" = 11,
-                                  "Inconsciente/ Sono" = 12), selected = values$current_row$label)
-            )
-            
+            HTML(my_text),
+            my_img
         )
     })
+    
+    
+    
+    # Atualizar opções mostradas na tela
+    output$options <- renderUI({
+        fluidRow(
+               radioButtons("expr", "Opções:",
+                            c("Não é face" = 0,
+                              "Não se sabe" = 1,
+                              "Felicidade/ Confiança" = 2,
+                              "Raiva/ Intimidação" = 3,
+                              "Seriedade/ Crítico" = 4,
+                              "Apreensão/ Nervosismo"= 5,
+                              "Sofrimento/ Depressão" = 6,
+                              "Nojo ou Desprezo" = 7,
+                              "Tristeza" = 8,
+                              "Timidez ou Vergonha" = 9,
+                              "Medo" = 10,
+                              "Surpresa" = 11,
+                              "Inconsciente/ Sono" = 12), selected = values$current_row$label)
+           )
+     })
 
 
     output$showCurrentFace <-  renderImage({
